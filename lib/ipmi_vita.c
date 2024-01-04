@@ -210,13 +210,18 @@ vita_discover(struct ipmi_intf *intf)
 	} else if ((rsp->data[3] & 0x03) != 0) {
 		lprintf(LOG_INFO, "Unknown VSO Standard %d",
 			(rsp->data[3] & 0x03));
-	} else if ((rsp->data[4] & 0x0F) != 1) {
+	} else if (((rsp->data[4] & 0x0F) != 1) && (rsp->data[4] != 0x22)) {
 		lprintf(LOG_INFO, "Unknown VSO Specification Revision %d.%d",
 			(rsp->data[4] & 0x0F), (rsp->data[4] >> 4));
 	} else {
 		vita_avail = 1;
-		lprintf(LOG_INFO, "Discovered VITA 46.11 Revision %d.%d",
-			(rsp->data[4] & 0x0F), (rsp->data[4] >> 4));
+		if (rsp->data[4] == 0x22) {
+			lprintf(LOG_INFO, "Discovered VITA 46.11 Approval year 20%d%d",
+				(rsp->data[4] >> 4), (rsp->data[4] & 0x0F));
+		} else {
+			lprintf(LOG_INFO, "Discovered VITA 46.11 Revision %d.%d",
+				(rsp->data[4] & 0x0F), (rsp->data[4] >> 4));
+		}
 	}
 
 	return vita_avail;
